@@ -1,8 +1,10 @@
+from ast import Str
 from email.policy import default
 import os
 import sys
 import argparse
 import typing
+from typing import Union
 import yaml
 import logging
 
@@ -17,7 +19,8 @@ if __name__ == "__main__":
     parser.add_argument('--data_dir', type=str, default='data')
     parser.add_argument('--city', type=str, default=None)
     parser.add_argument('--settings', type=str, default='settings.yml')
-    parser.add_argument('--epsg', type=int, default=3857) # pseudo-mercator, which is in meters but not perfect for distance calculations
+    parser.add_argument('--projection_epsg', type=str, default='EPSG:3857') # pseudo-mercator, which is in meters but not perfect for distance calculations
+    parser.add_argument('--default_epsg', type=str, default='EPSG:4326')
     parser.add_argument(
         "--log-level",
         default=logging.INFO,
@@ -49,9 +52,9 @@ if __name__ == "__main__":
     logger.info("Full Configuration File: {}".format(config))
 
     # now into the management code - first want to get the building footprints and the regional statistics
-    footprints = get_footprints(city_path=city_path, epsg=args.epsg)
-    manage(footprints, city_path, **config)
-    logger.info(compute_area.wkt)
+    footprints = get_footprints(city_path=city_path)
+    results = manage(footprints[:3], **config)
+    logger.info(results)
 
 
     

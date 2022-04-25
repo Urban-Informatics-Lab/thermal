@@ -27,14 +27,12 @@ def prep_googleformat(compute_area: Polygon) -> list:
     x, y = compute_area.exterior.coords.xy
     return [ list(i) for i in zip(x,y) ]
 
-def points_googleformat(footprints: GeoDataFrame, epsg:Union[int,str]) -> list:
+def points_googleformat(footprints: GeoDataFrame, projection_epsg:str, default_epsg: str) -> list:
     '''Preps the building list into centroid points which will be used to query the stats'''
-    if type(epsg) == int:
-        epsg = 'EPSG:{}'.format(epsg)
-
-    footprint_centroids = footprints.geometry.to_crs(epsg).centroid
+    footprint_centroids = footprints.geometry.to_crs(projection_epsg).centroid.to_crs(default_epsg)
     return [ [geom.xy[0][0], geom.xy[1][0]] for geom in footprint_centroids ]
 
-def footprint_id(footprints: GeoDataFrame) -> list[int]:
-    geo_strings = footprints.geometry.map(str)
+def footprint_id(footprints: GeoDataFrame, projection_epsg:str) -> list[int]:
+    """Provides an id for each footprint based on the centroid"""
+    geo_strings = footprints.geometry.to_crs(projection_epsg).centroid.map(str)
     return geo_strings.map(lambda x: hash(x) % ((sys.maxsize + 1) * 2))

@@ -59,7 +59,7 @@ def generate_structure(data_dir:str, city:str = None) -> str:
     os.makedirs(city_path, exist_ok=True)
     return city_path
 
-def get_footprints(city_path: str, epsg: int = None) -> str:
+def get_footprints(city_path: str, epsg: str = None) -> str:
     """Check if the building footprints have been provided"""
     footprints_path = os.path.join(city_path, 'footprints.geojson')
     if not os.path.exists(footprints_path):
