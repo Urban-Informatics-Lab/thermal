@@ -30,9 +30,12 @@ def prep_googleformat(compute_area: Polygon) -> list:
 def points_googleformat(footprints: GeoDataFrame, projection_epsg:str, default_epsg: str) -> list:
     '''Preps the building list into centroid points which will be used to query the stats'''
     footprint_centroids = footprints.geometry.to_crs(projection_epsg).centroid.to_crs(default_epsg)
+    logger.info(footprints['id'][:3])
+    logger.info(footprint_centroids[:3])
     return [ [geom.xy[0][0], geom.xy[1][0]] for geom in footprint_centroids ]
 
 def footprint_id(footprints: GeoDataFrame, projection_epsg:str) -> list[int]:
     """Provides an id for each footprint based on the centroid"""
+    # footprint_sorted = footprints.sort_values(by=[''])
     geo_strings = footprints.geometry.to_crs(projection_epsg).centroid.map(str)
     return geo_strings.map(lambda x: hash(x) % ((sys.maxsize + 1) * 2))

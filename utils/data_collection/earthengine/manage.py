@@ -15,7 +15,7 @@ from utils.data_collection.earthengine.dateutil import datelist
 from utils.data_collection.earthengine import lst, vegetation, elevation, weather
 
 def manage(
-    footprints: GeoDataFrame, 
+    footprints: GeoDataFrame,
     projection_epsg: Union[int, str], 
     default_epsg: Union[int, str], 
     start_date: date, 
@@ -33,14 +33,14 @@ def manage(
         footprints.loc[:,'id'] = footprint_id(footprints, projection_epsg)
 
     points_list = points_googleformat(footprints, projection_epsg, default_epsg)
-    google_points = ee.Geometry.MultiPoint(points_list)
+    google_points = ee.FeatureCollection([ee.Geometry.Point(point) for point in points_list])
 
     # each of these data sources should have a common 'run' function with a common interface
     data_classes = [
         lst,
-        vegetation,
         elevation,
-        weather
+        # weather,
+        vegetation
     ]
 
     # first collect all the data into a dictionary full of information
