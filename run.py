@@ -8,7 +8,7 @@ from typing import Union
 import yaml
 import logging
 
-from utils.file_management import get_footprints, initialize
+from utils.file_management import get_footprints, initialize, save_data
 from utils.data_collection.earthengine.manage import manage
 
 def create_datadir(data_path:str):
@@ -54,7 +54,9 @@ if __name__ == "__main__":
     # now into the management code - first want to get the building footprints and the regional statistics
     footprints = get_footprints(city_path=city_path)
     results = manage(footprints[:3], **config)
-    logger.info(results)
+    logger.info('Saving files....')
+    save_data(results, city_path)
+    logger.info('Saved!')
 
 
     

@@ -1,8 +1,7 @@
 data_dir: data
-epsg: 3857
-pi: 3.14159
-xmas: true
-french-hens: 3
+epsg: 4326
+start_date: '2020-01-01'
+end_date: '2020-02-01'
 calling-birds:
   - huey
   - dewey
