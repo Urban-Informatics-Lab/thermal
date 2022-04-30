@@ -2,9 +2,12 @@ import os
 import sys
 import geopandas as gpd
 from geopandas import GeoDataFrame
+import ee
+import numpy as np
+import uuid
 
 from typing import Union
-from shapely.geometry import Polygon, Point
+from shapely.geometry import Polygon, Point, MultiPolygon
 from shapely.geometry import MultiPoint
 
 import logging
@@ -22,20 +25,42 @@ def convex_hull(footprints: gpd.GeoDataFrame, buffer_dist:int = 1e3) -> Polygon:
         raise ValueError
     return convex_hull
 
-def prep_googleformat(compute_area: Polygon) -> list:
+def ee_polygon(geometry: Polygon) -> ee.Geometry.Polygon:
     '''Preps the shapely file into a list of lists we can use with earth engine'''
-    x, y = compute_area.exterior.coords.xy
-    return [ list(i) for i in zip(x,y) ]
+    x, y = geometry.exterior.coords.xy
+    cords = np.dstack((x,y)).tolist()
+    return ee.Geometry.Polygon(cords)
 
-def points_googleformat(footprints: GeoDataFrame, projection_epsg:str, default_epsg: str) -> list:
+def ee_multipolygon(geometry: MultiPolygon) -> ee.Geometry.Polygon:
+    '''Preps the shapely file into a list of lists we can use with earth engine'''
+    x, y = geometry.geoms[0].exterior.coords.xy # this may be a fuck up
+    cords = np.dstack((x,y)).tolist()
+    return ee.Geometry.Polygon(cords[0])
+
+def ee_point(geometry: Point) -> ee.Geometry.Point:
+    x,y = geometry.xy
+    return ee.Geometry.Point([x[0],y[0]])
+
+def to_featurecollection(footprints: GeoDataFrame, buffer_size:int = 20, **kwargs) -> ee.FeatureCollection:
     '''Preps the building list into centroid points which will be used to query the stats'''
-    footprint_centroids = footprints.geometry.to_crs(projection_epsg).centroid.to_crs(default_epsg)
-    logger.info(footprints['id'][:3])
-    logger.info(footprint_centroids[:3])
-    return [ [geom.xy[0][0], geom.xy[1][0]] for geom in footprint_centroids ]
+    features = []
+    for index in range(len(footprints)):
+        geometry = footprints.iloc[index].geometry
+        if type(geometry) == Point:
+            ee_geom = ee_point(geometry)
+        elif type(geometry) == Polygon:
+            ee_geom = ee_polygon(geometry)
+        elif type(geometry) == MultiPolygon:
+            ee_geom = ee_multipolygon(geometry)
+        else:
+            raise TypeError('Footprint geometry not supported.')
+    
+        data = footprints.loc[index, ~footprints.columns.isin(['geometry'])]
+        features.append(ee.Feature(ee_geom.buffer(buffer_size), dict(data)))
+    
+    return ee.FeatureCollection(features)
 
-def footprint_id(footprints: GeoDataFrame, projection_epsg:str) -> list[int]:
-    """Provides an id for each footprint based on the centroid"""
-    # footprint_sorted = footprints.sort_values(by=[''])
-    geo_strings = footprints.geometry.to_crs(projection_epsg).centroid.map(str)
-    return geo_strings.map(lambda x: hash(x) % ((sys.maxsize + 1) * 2))
+def footprint_id(footprints: GeoDataFrame) -> list[int]:
+    """Provides an id for each footprint based on the """
+    footprints['id'] = [ str(uuid.uuid5(uuid.NAMESPACE_DNS, str(x)))[-5:] for x in footprints.geometry ]
+    return footprints

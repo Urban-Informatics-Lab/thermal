@@ -1,4 +1,3 @@
-import os
 import ee
 import pandas as pd
 import geemap
@@ -9,11 +8,16 @@ logger = logging.getLogger(__name__)
 
 from datetime import date
 
+def addNDVI(image):
+    return image.addBands(image.normalizedDifference(['B8', 'B4']).rename('ndvi'))
+
 def run(google_points: FeatureCollection, start_date: date, end_date: date, scale:int = 100, **kwargs) -> FeatureCollection:
-    """Collects land surface temperature"""
-    lst_raw = ee.ImageCollection('MODIS/006/MOD11A1')
+    """Collects historical vegetation around this point"""
+    sentinel = ee.ImageCollection("COPERNICUS/S2_SR") 
+    sentinel = sentinel.map(addNDVI)
+
     total_geometry = google_points.geometry()
-    lst = lst_raw.filterDate(start_date, end_date).filterBounds(total_geometry)
+    sentinel_filtered = sentinel.filterDate(start_date, end_date).filterBounds(total_geometry)
 
     def custom_reducer(image):
         def image_properties(feature):
@@ -23,13 +27,13 @@ def run(google_points: FeatureCollection, start_date: date, end_date: date, scal
                 }).copyProperties(feature)
             return extra_info
 
-        lst_reduced = image.reduceRegions(
+        sentinel_mean = image.reduceRegions(
             collection= google_points,
             reducer= ee.Reducer.mean(),
             scale= scale
          ).map(image_properties)
          
-        return lst_reduced
+        return sentinel_mean
 
-    returning = geemap.ee_to_geopandas(lst.map(custom_reducer).flatten())
-    return returning
+    intermediate = sentinel_filtered.map(custom_reducer).flatten()
+    return geemap.ee_to_geopandas(intermediate)

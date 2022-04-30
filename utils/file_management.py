@@ -1,9 +1,23 @@
 import os
+import json
 import geopandas as gpd
 import logging
 import yaml
 
+from utils.data_collection.footprint_area import footprint_id
+
 logger = logging.getLogger(__name__)
+
+# class customEccoder(json.JSONEncoder):
+#     def default(self, obj):
+#         if isinstance(obj, np.integer):
+#             return int(obj)
+#         if isinstance(obj, np.floating):
+#             return float(obj)
+#         if isinstance(obj, np.ndarray):
+#             return obj.tolist()
+#         return super(customEccoder, self).default(obj)
+
 
 def initialize(
     base_dir:str, 
@@ -68,7 +82,19 @@ def get_footprints(city_path: str, epsg: str = None) -> str:
     footprints = gpd.read_file(footprints_path)
     logger.info("Finding footprints: {}".format(footprints.columns))
 
+    if 'id' not in footprints.columns:
+        footprints = footprint_id(footprints)
+        footprints.to_file(footprints_path, driver='GeoJSON')
+
     if epsg is not None:
         footprints = footprints.to_crs(epsg=epsg)
     
     return footprints
+
+def save_data(processed_classes: dict, data_dir: str):
+    collected_datadir = os.path.join(data_dir, 'satellite')
+    os.makedirs(collected_datadir, exist_ok=True)
+    for key, value in processed_classes.items():
+        data_path = os.path.join(collected_datadir, key+'.csv')
+        with open(data_path, 'w') as file:
+            value.to_csv(file)
