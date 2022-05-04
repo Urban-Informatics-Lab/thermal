@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 from datetime import date
 
-def run(google_points: FeatureCollection, start_date: date, end_date: date, scale:int = 100, **kwargs) -> FeatureCollection:
+def run(google_points: FeatureCollection, start_date: date, end_date: date, scale:int = 100, **kwargs) -> dict:
     """Collects land surface temperature"""
     lst_raw = ee.ImageCollection('MODIS/006/MOD11A1')
     total_geometry = google_points.geometry()
@@ -17,11 +17,11 @@ def run(google_points: FeatureCollection, start_date: date, end_date: date, scal
 
     def custom_reducer(image):
         def image_properties(feature):
-            extra_info = ee.Feature(None, {
+            injecting = ee.Feature(None, {
                 'imgID': image.id(),
                 'date': image.date().format("YYYY-MM-dd HH:mm:ss")
-                }).copyProperties(feature)
-            return extra_info
+                })
+            return feature.setGeometry(None).copyProperties(injecting)
 
         lst_reduced = image.reduceRegions(
             collection= google_points,
@@ -31,5 +31,12 @@ def run(google_points: FeatureCollection, start_date: date, end_date: date, scal
          
         return lst_reduced
 
-    returning = geemap.ee_to_geopandas(lst.map(custom_reducer).flatten())
-    return returning
+    return {
+        "selectors":[
+            "date",
+            "LST_Day_1km",
+            "LST_Night_1km"
+            ],
+        "collection":lst.map(custom_reducer).flatten()
+    }
+    # return lst.map(custom_reducer).flatten()

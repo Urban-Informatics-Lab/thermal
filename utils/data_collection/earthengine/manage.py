@@ -12,7 +12,7 @@ from utils.data_collection.footprint_area import to_featurecollection
 from utils.data_collection.earthengine.dateutil import datelist
 
 # the kinds of data we're going to work with
-from utils.data_collection.earthengine import lst, sentinel, elevation, weather
+from utils.data_collection.earthengine import lst, sentinel, elevation, weather, era5
 
 def manage(
     footprints: GeoDataFrame,
@@ -25,7 +25,8 @@ def manage(
     data_classes = [
         lst,
         elevation,
-        weather,
+        era5,
+        # weather,
         sentinel
     ]
     

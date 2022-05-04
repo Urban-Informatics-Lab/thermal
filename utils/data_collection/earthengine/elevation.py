@@ -9,13 +9,16 @@ logger = logging.getLogger(__name__)
 
 from datetime import date
 
-def run(google_points: FeatureCollection, start_date: date, end_date: date, scale:int = 100, **kwargs) -> FeatureCollection:
+def run(google_points: FeatureCollection, start_date: date, end_date: date, scale:int = 100, **kwargs) -> dict:
     """Collects historical vegetation around this point"""
     elv = ee.Image('USGS/SRTMGL1_003')
-    reduced = elv.reduceRegions(
+    returning_region = elv.reduceRegions(
         collection= google_points,
-        reducer= ee.Reducer.mean(),
+        reducer= ee.Reducer.mean().setOutputs(["elevation"]),
         scale= 30
-    )
+    ).map(lambda feature: feature.setGeometry(None))
 
-    return geemap.ee_to_pandas(reduced)
+    return {
+        "selectors":["elevation"],
+        "collection":returning_region
+    }

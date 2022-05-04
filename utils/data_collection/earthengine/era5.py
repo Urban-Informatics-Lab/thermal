@@ -13,7 +13,7 @@ from datetime import date
 
 def run(google_points: FeatureCollection, start_date: date, end_date: date, scale:int = 100, **kwargs) -> dict:
     """Collects land surface temperature"""
-    weather_images = ee.ImageCollection("NOAA/NWS/RTMA")
+    weather_images = ee.ImageCollection("ECMWF/ERA5/MONTHLY")
     total_geometry = google_points.geometry()
     weather = weather_images.filterDate(start_date, end_date).filterBounds(total_geometry)
 
@@ -35,19 +35,16 @@ def run(google_points: FeatureCollection, start_date: date, end_date: date, scal
 
     return {
         "selectors":[
-            "HGT",
-            "PRES",
-            "TMP",
-            "DPT",
-            "UGRD",
-            "VGRD",
-            "SPFH",
-            "WDIR",
-            "WIND",
-            "GUST",
-            "VIS",
-            "TCDC",
-            "ACPC01"
+            "date",
+            "mean_2m_air_temperature",
+            "minimum_2m_air_temperature",
+            "maximum_2m_air_temperature",
+            "dewpoint_2m_temperature",
+            "total_precipitation",
+            "surface_pressure",
+            "mean_sea_level_pressure",
+            "u_component_of_wind_10m",
+            "v_component_of_wind_10m"
         ],
         "collection":weather.map(custom_reducer).flatten()
     }
