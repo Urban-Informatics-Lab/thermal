@@ -1,17 +1,8 @@
 data_dir: data
 epsg: 4326
 start_date: '2020-01-01'
-end_date: '2020-02-01'
-calling-birds:
-  - huey
-  - dewey
-  - louie
-  - fred
-xmas-fifth-day:
-  calling-birds: four
-  french-hens: 3
-  golden-rings: 5
-  partridges:
-    count: 1
-    location: "a pear tree"
-  turtle-doves: two
+end_date: '2020-04-01'
+export_vector: False
+custom_selectors:
+  - 'bbl'
+  - 'bin'
