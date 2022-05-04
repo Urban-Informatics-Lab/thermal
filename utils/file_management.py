@@ -1,6 +1,9 @@
 import os
 import json
+import geemap
+import ee
 import geopandas as gpd
+import pandas as pd
 import logging
 import yaml
 
@@ -91,10 +94,28 @@ def get_footprints(city_path: str, epsg: str = None) -> str:
     
     return footprints
 
-def save_data(processed_classes: dict, data_dir: str):
-    collected_datadir = os.path.join(data_dir, 'satellite')
+def save_data(processed_classes: dict, city_path: str, export_vector:bool = False, custom_selectors:list = [], **kwargs):
+    logger.info('Saving...')
+    collected_datadir = os.path.join(city_path, 'satellite')
     os.makedirs(collected_datadir, exist_ok=True)
     for key, value in processed_classes.items():
-        data_path = os.path.join(collected_datadir, key+'.csv')
-        with open(data_path, 'w') as file:
-            value.to_csv(file)
+        collection = value['collection']
+        selectors = custom_selectors + value['selectors']
+        if export_vector:
+            # we want this if we're running a larger computation which is going to kill resources
+            logger.info("Exporting Data to Drive...")
+            task = ee.batch.Export.table.toDrive(
+                description=key, 
+                folder=collected_datadir, 
+                fileFormat="CSV",
+                selectors=selectors,
+                collection=collection
+            )
+            task.start()
+        else:
+            logger.info("Saving Data Locally...")
+            data_path = os.path.join(collected_datadir, key+'.csv')
+            geodf = pd.DataFrame(geemap.ee_to_geopandas(collection))
+            retaining_df = geodf.loc[:, selectors]
+            retaining_df.to_csv(data_path)
+            logger.info("Sample of {} data:\n{}".format(key, retaining_df.head(5)))
