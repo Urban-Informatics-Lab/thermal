@@ -1,7 +1,7 @@
 data_dir: data
 epsg: 4326
-start_date: '2020-01-01'
-end_date: '2020-04-01'
+start_date: '2018-01-01'
+end_date: '2021-01-01'
 export_vector: False
 custom_selectors:
   - 'bbl'
