@@ -22,7 +22,7 @@ def run(google_points: FeatureCollection, start_date: date, end_date: date, scal
     total_geometry = google_points.geometry()
     sentinel_filtered = sentinel\
             .filterDate(start_date, end_date)\
-            .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 15))\
+            .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 20))\
             .filterBounds(total_geometry)
 
     def custom_reducer(image):
