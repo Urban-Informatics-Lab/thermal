@@ -54,7 +54,7 @@ if __name__ == "__main__":
 
     # now into the management code - first want to get the building footprints and the regional statistics
     footprints = get_footprints(city_path=city_path)
-    results = manage(footprints[:4], **config)
+    results = manage(footprints, **config)
     logger.info('Saving files....')
     save_data(results, city_path=city_path, **config)
     logger.info('Saved!')
