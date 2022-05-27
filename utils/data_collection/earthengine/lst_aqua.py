@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 def run(google_points: FeatureCollection, start_date: date, end_date: date, scale: int = 100, **kwargs) -> dict:
     """Collects land surface temperature"""
-    lst_raw = ee.ImageCollection('MODIS/061/MOD11A1')
+    lst_raw = ee.ImageCollection("MODIS/061/MYD11A1")
     total_geometry = google_points.geometry()
     lst = lst_raw.filterDate(start_date, end_date).filterBounds(total_geometry)
 

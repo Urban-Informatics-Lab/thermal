@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 from datetime import date
 
 def addNDVI(image):
-    return image.addBands(image.normalizedDifference(['B8', 'B4']).rename('ndvi'))
+    return image.addBands(image.normalizedDifference(['B8', 'B4']).rename('NDVI'))
 
 def run(google_points: FeatureCollection, start_date: date, end_date: date, scale:int = 100, **kwargs) -> dict:
     """Collects historical vegetation around this point"""
