@@ -31,7 +31,12 @@ def run(google_points: FeatureCollection, start_date: date, end_date: date, scal
             })
             return feature.copyProperties(injecting)
 
-        lst_reduced = image.reduceRegions(
+        # now trying to map this into a filtering scheme
+        qaMask = image.select('QA_PIXEL').bitwiseAnd(31).eq(0)
+        saturationMask = image.select('QA_RADSAT').eq(0)
+
+        lst_masked = image.updateMask(qaMask).updateMask(saturationMask)
+        lst_reduced = lst_masked.reduceRegions(
             collection=google_points,
             reducer=ee.Reducer.mean(),
             scale=scale

@@ -14,16 +14,30 @@ from datetime import date
 def addNDVI(image):
     return image.addBands(image.normalizedDifference(['B8', 'B4']).rename('NDVI'))
 
+def maskS2clouds(image):
+  qa = image.select('QA60')
+
+  ## Bits 10 and 11 are clouds and cirrus, respectively.
+  cloudBitMask = 1 << 10
+  cirrusBitMask = 1 << 11
+
+  ## Both flags should be set to zero, indicating clear conditions.
+  mask = qa.bitwiseAnd(cloudBitMask).eq(0)
+  cirrus_mask = qa.bitwiseAnd(cirrusBitMask).eq(0)
+
+  return image.updateMask(mask).updateMask(cirrus_mask)
+
 def run(google_points: FeatureCollection, start_date: date, end_date: date, scale:int = 100, **kwargs) -> dict:
     """Collects historical vegetation around this point"""
-    sentinel = ee.ImageCollection("COPERNICUS/S2_SR") 
-    sentinel = sentinel.map(addNDVI)
-
+    sentinel = ee.ImageCollection("COPERNICUS/S2")
+    
     total_geometry = google_points.geometry()
     sentinel_filtered = sentinel\
             .filterDate(start_date, end_date)\
-            .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 20))\
-            .filterBounds(total_geometry)
+            .filterBounds(total_geometry)\
+            .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 50))\
+            .map(maskS2clouds)\
+            .map(addNDVI)
 
     def custom_reducer(image):
         def image_properties(feature):
@@ -36,7 +50,8 @@ def run(google_points: FeatureCollection, start_date: date, end_date: date, scal
         sentinel_mean = image.reduceRegions(
             collection= google_points,
             reducer= ee.Reducer.mean(),
-            scale= scale
+            scale= scale,
+            crs="EPSG:4326"
          ).map(image_properties)
          
         return sentinel_mean
@@ -56,10 +71,9 @@ def run(google_points: FeatureCollection, start_date: date, end_date: date, scal
             "B9",
             "B11",
             "B12",
-            "AOT",
-            "WVP"
+            "NDVI"
             ],
-        "collection":sentinel_filtered.map(custom_reducer).flatten()
+        "collection": sentinel_filtered.map(custom_reducer).flatten()
     }
     # logger.debug('Raw Features: {}'.format(json.dumps(intermediate.getInfo(), indent=4, sort_keys=True)))
     # logger.info('Sentinel Feature Properties: {}'.format(intermediate.first().propertyNames().getInfo()))

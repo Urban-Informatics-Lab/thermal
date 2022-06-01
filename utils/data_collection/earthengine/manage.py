@@ -27,9 +27,9 @@ def manage(
         # lst_terra
         # # elevation,
         # # era5,
-        # noaa
+        noaa
         # sentinel
-        landsat8
+        # landsat8
     ]
     
     processed_classes = {}
