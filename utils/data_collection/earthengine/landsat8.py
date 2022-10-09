@@ -13,6 +13,9 @@ def addNDVI(image):
 
 def run(google_points: FeatureCollection, start_date: date, end_date: date, scale: int = 100, **kwargs) -> dict:
     """Collects land surface temperature"""
+    # note about landsat
+    # tier 1 is the high quality date, tier 2 is less high quality
+    # level 2 has additional scientific features which are added
     lst_raw = ee.ImageCollection("LANDSAT/LC08/C02/T1_L2")
 
     total_geometry = google_points.geometry()
@@ -32,8 +35,9 @@ def run(google_points: FeatureCollection, start_date: date, end_date: date, scal
             return feature.copyProperties(injecting)
 
         # now trying to map this into a filtering scheme
+        # quick explanation - 31 to binary is 1111, which corresponds to the bitmask
         qaMask = image.select('QA_PIXEL').bitwiseAnd(31).eq(0)
-        saturationMask = image.select('QA_RADSAT').eq(0)
+        saturationMask = image.select('QA_RADSAT').bitwiseAnd(2431).eq(0)
 
         lst_masked = image.updateMask(qaMask).updateMask(saturationMask)
         lst_reduced = lst_masked.reduceRegions(

@@ -22,10 +22,12 @@ def maskS2clouds(image):
   cirrusBitMask = 1 << 11
 
   ## Both flags should be set to zero, indicating clear conditions.
-  mask = qa.bitwiseAnd(cloudBitMask).eq(0)
+  cloud_mask = qa.bitwiseAnd(cloudBitMask).eq(0)
   cirrus_mask = qa.bitwiseAnd(cirrusBitMask).eq(0)
 
-  return image.updateMask(mask).updateMask(cirrus_mask)
+  mask = cloud_mask.And(cirrus_mask)
+
+  return image.updateMask(mask)
 
 def run(google_points: FeatureCollection, start_date: date, end_date: date, scale:int = 100, **kwargs) -> dict:
     """Collects historical vegetation around this point"""
@@ -35,7 +37,6 @@ def run(google_points: FeatureCollection, start_date: date, end_date: date, scal
     sentinel_filtered = sentinel\
             .filterDate(start_date, end_date)\
             .filterBounds(total_geometry)\
-            .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 50))\
             .map(maskS2clouds)\
             .map(addNDVI)
 
@@ -44,7 +45,7 @@ def run(google_points: FeatureCollection, start_date: date, end_date: date, scal
             injecting = ee.Feature(None, {
                 'imgID': image.id(),
                 'date': image.date().format("YYYY-MM-dd HH:mm:ss")
-                })
+            })
             return feature.setGeometry(None).copyProperties(injecting)
 
         sentinel_mean = image.reduceRegions(

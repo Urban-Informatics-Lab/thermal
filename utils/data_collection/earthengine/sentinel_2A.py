@@ -15,23 +15,19 @@ def addNDVI(image):
     return image.addBands(image.normalizedDifference(['B8', 'B4']).rename('NDVI'))
 
 def cloudmask(image):
-  qa = image.select('SCL')
-  q1 = qa.neq(1) # saturated or defective
-  q2 = qa.neq(2) # dark area
-  q3 = qa.neq(3) # cloud shadows
-  q7 = qa.neq(7) # low prob clouds
-  q8 = qa.neq(8) # med prob clouds
-  q9 = qa.neq(9) # high prob clouds
-  q10 = qa.neq(10) # cirrus
+    qa = image.select('SCL')
+    #   mask = qa.neq(1) # saturated or defective
+    #   q2 = qa.neq(2) # dark area
+    #   q3 = qa.neq(3) # cloud shadows
+    #   q7 = qa.neq(7) # low prob clouds
+    #   q8 = qa.neq(8) # med prob clouds
+    #   q9 = qa.neq(9) # high prob clouds
+    #   q10 = qa.neq(10) # cirrus
+    mask = qa.bitwiseAnd(9).eq(0)
+        # .And(qa.bitwiseAnd(3).eq(0))\
+        # .And(qa.bitwiseAnd(2).eq(0))
 
-  return \
-      image.updateMask(q9)\
-        .updateMask(q10)\
-        .updateMask(q8)\
-        .updateMask(q7)\
-        .updateMask(q3)\
-        .updateMask(q2)\
-        .updateMask(q1)
+    return image.updateMask(mask)
 
 def run(google_points: FeatureCollection, start_date: date, end_date: date, scale:int = 100, **kwargs) -> dict:
     """Collects historical vegetation around this point"""
