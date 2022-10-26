@@ -12,7 +12,7 @@ from utils.data_collection.footprint_area import to_featurecollection
 from utils.data_collection.earthengine.dateutil import datelist
 
 # the kinds of data we're going to work with
-from utils.data_collection.earthengine import cmip, lst_terra, lst_aqua, sar, sentinel_1C, sentinel_2A, elevation, era5, era5_land, noaa, landsat8, viirs, dynamicworld
+from utils.data_collection.earthengine import cmip, dynamicworld, ecostress, elevation, era5, era5_land, landsat8, lst_terra, lst_aqua, sar, sentinel_1C, sentinel_2A, noaa, viirs
 
 def manage(
     footprints: GeoDataFrame,
@@ -23,19 +23,19 @@ def manage(
 
     # each of these data sources should have a common 'run' function with a common interface
     data_classes = [
-        cmip,
-        dynamicworld,
-        # era5_land
+        # cmip,
+        # dynamicworld,
+        # era5_land,
         # lst_terra,
         # lst_aqua,
         # ecostress,
         # elevation,
-        # era5,
-        # noaa,
-        # sar,
-        # sentinel_2A,
-        # sentinel_1C,
-        # viirs,
+        era5,
+        noaa,
+        sar,
+        sentinel_2A,
+        sentinel_1C,
+        viirs,
         landsat8
     ]
     

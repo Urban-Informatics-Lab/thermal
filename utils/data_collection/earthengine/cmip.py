@@ -13,7 +13,8 @@ def run(google_points: FeatureCollection, start_date: date, end_date: date, scal
     """Collects land surface temperature"""
     cimp_raw = ee.ImageCollection('NASA/NEX-GDDP')
     total_geometry = google_points.geometry()
-    cimp = cimp_raw.filterDate(start_date, end_date).filterBounds(total_geometry)
+    cimp = cimp_raw.filter(ee.Filter.eq('model', 'MIROC-ESM'))\
+        .filterDate(start_date, end_date).filterBounds(total_geometry)\
 
     def custom_reducer(image):
         def image_properties(feature):
