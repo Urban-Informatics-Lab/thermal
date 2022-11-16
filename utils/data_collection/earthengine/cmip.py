@@ -15,7 +15,7 @@ def run(google_points: FeatureCollection, start_date: date, end_date: date, scal
     total_geometry = google_points.geometry()
     cimp = cimp_raw\
         .filterDate(start_date, end_date)\
-        .filter(ee.Filter.eq('scenario', 'rcp60'))\
+        .filter(ee.Filter.eq('scenario', 'rcp45'))\
         .filterBounds(total_geometry)
 
     def custom_reducer(image):
