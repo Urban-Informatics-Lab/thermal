@@ -11,10 +11,12 @@ logger = logging.getLogger(__name__)
 
 def run(google_points: FeatureCollection, start_date: date, end_date: date, scale: int = 100, **kwargs) -> dict:
     """Collects land surface temperature"""
-    cimp_raw = ee.ImageCollection('NASA/NEX-GDDP')
+    cimp_raw = ee.ImageCollection('NASA/NEX-DCP30_ENSEMBLE_STATS')
     total_geometry = google_points.geometry()
-    cimp = cimp_raw.filter(ee.Filter.eq('model', 'MIROC-ESM'))\
-        .filterDate(start_date, end_date).filterBounds(total_geometry)\
+    cimp = cimp_raw\
+        .filterDate(start_date, end_date)\
+        .filter(ee.Filter.eq('scenario', 'rcp60'))\
+        .filterBounds(total_geometry)
 
     def custom_reducer(image):
         def image_properties(feature):
@@ -35,9 +37,18 @@ def run(google_points: FeatureCollection, start_date: date, end_date: date, scal
     return {
         "selectors": [
             "date",
-            "pr",
-            "tasmin",
-            "tasmax"
+            "pr_mean",
+            "pr_quartile25",
+            "pr_median",
+            "pr_quartile75",
+            "tasmin_mean",
+            "tasmin_quartile25",
+            "tasmin_median",
+            "tasmin_quartile75",
+            "tasmax_mean",
+            "tasmax_quartile25",
+            "tasmax_median",
+            "tasmax_quartile75",
         ],
         "collection": cimp.map(custom_reducer).flatten()
     }
