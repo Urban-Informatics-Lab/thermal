@@ -6,8 +6,9 @@ SSRN: https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4204469
 
 ### Steps for getting running
 1. conda env create -f environment.yml
-2. earthengine authenticate
-3. mkdir ./data/\<name\>/
+2. conda activate thermal
+3. earthengine authenticate
+4. mkdir ./data/\<name\>/
 5. cp <building_footprints> ./data/\<name\>/footprints.geojson
 6. python run.py --city <directory_name> --settings default\_settings.yml --export
 
