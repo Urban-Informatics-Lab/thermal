@@ -5,7 +5,7 @@ The initial Preprint, Open Access form of the work can be found here:
 SSRN: https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4204469
 
 ### Steps for getting running
-1. conda create --name thermal --file spec-file.txt
+1. conda env create -f environment.yml
 2. earthengine authenticate
 3. mkdir ./data/\<name\>/
 5. cp <building_footprints> ./data/\<name\>/footprints.geojson
