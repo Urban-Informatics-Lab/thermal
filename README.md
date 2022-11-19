@@ -1,5 +1,6 @@
 # Satellite Collection Pipeline - Building Statistics
 This repo is meant to consolidate some of the tooling required to use Google Earth Engine for the collection of data pertinent in building energy consumption. Below you can find an example of what it looks like to capture vegetation adjacent to buildings in southern Brooklyn:
+
 ![plot](./images/building_ndvi.png)
 
 The initial Preprint, Open Access form of the work can be found here:
