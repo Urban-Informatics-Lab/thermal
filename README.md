@@ -1,13 +1,16 @@
 # Satellite Collection Pipeline - Building Statistics
-This repo is meant to consolidate some of the tooling required to use Google Earth Engine for the collection of data pertinent in building energy consumption.
+This repo is meant to consolidate some of the tooling required to use Google Earth Engine for the collection of data pertinent in building energy consumption. Below you can find an example of what it looks like to capture vegetation adjacent to buildings in southern Brooklyn:
+
+![plot](./images/building_ndvi.png)
 
 The initial Preprint, Open Access form of the work can be found here:
 SSRN: https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4204469
 
 ### Steps for getting running
-1. conda create --name thermal --file spec-file.txt
-2. earthengine authenticate
-3. mkdir ./data/\<name\>/
+1. conda env create -f environment.yml
+2. conda activate thermal
+3. earthengine authenticate
+4. mkdir ./data/\<name\>/
 5. cp <building_footprints> ./data/\<name\>/footprints.geojson
 6. python run.py --city <directory_name> --settings default\_settings.yml --export
 
