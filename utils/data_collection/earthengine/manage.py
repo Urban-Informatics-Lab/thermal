@@ -1,4 +1,4 @@
-from utils.data_collection.earthengine import cmip, dynamicworld, ecostress, elevation, era5, era5_land, landsat8, lst_terra, lst_aqua, sar, sentinel_1C, sentinel_2A, noaa, viirs
+from utils.data_collection.earthengine import cmip, dynamicworld, ecostress, elevation, era5, era5_land, landsat8, lst_terra, lst_aqua, sentinel_1C, sentinel_2A, noaa, viirs
 from utils.data_collection.earthengine.dateutil import datelist
 from utils.data_collection.footprint_area import to_featurecollection
 from concurrent.futures import process
@@ -24,7 +24,7 @@ def manage(
 
     # each of these data sources should have a common 'run' function with a common interface
     data_classes = [
-        cmip,
+        # cmip,
         # dynamicworld,
         # era5_land,
         # lst_terra,
@@ -32,10 +32,9 @@ def manage(
         # elevation,
         # era5,
         # noaa,
-        # sar,
         # sentinel_2A,
         # sentinel_1C,
-        # viirs,
+        viirs,
         # landsat8
     ]
 
