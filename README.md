@@ -3,8 +3,9 @@ This repo is meant to consolidate some of the tooling required to use Google Ear
 
 ![plot](./images/building_ndvi.png)
 
-The initial Preprint, Open Access form of the work can be found here:
-SSRN: https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4204469
+A case study using data collected with this resource can be found [here](https://github.com/trdougherty/invisible_walls).
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7508125.svg)](https://doi.org/10.5281/zenodo.7508125).
+
 
 ### Steps for getting running
 1. conda env create -f environment.yml
